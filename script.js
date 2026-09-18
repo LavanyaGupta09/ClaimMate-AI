@@ -739,19 +739,10 @@ Keep your answers concise, empathetic, and professional.`
 
             const payload = [sysPrompt, ...chatHistory.filter(m => m.role !== 'system')];
             
-            // Default to empty string if not defined
-            const apiKey = window.groqApiKey || localStorage.getItem('groqApiKey') || '';
-            
-            if (!apiKey) {
-                // If no API key, instantly fallback to mock response
-                throw new Error("No API key available");
-            }
-
-            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     model: 'llama-3.1-8b-instant',
