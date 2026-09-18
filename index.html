@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClaimMate AI Platform</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b9df8',
+                        accent: '#4fd1ff',
+                        darkbg: '#0a0a0f',
+                        darksec: '#12121a',
+                        darkcard: '#1a1a24',
+                        darkborder: '#2a2a35',
+                        escalated: '#f59e0b',
+                    },
+                    fontFamily: {
+                        heading: ['"Space Grotesk"', 'sans-serif'],
+                        body: ['"Inter"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css?v=10">
+</head>
+<body class="bg-darkbg text-white font-body overflow-hidden h-screen flex relative">
+
+    <!-- Login Screen Overlay -->
+    <div id="login-view" class="absolute inset-0 z-[100] bg-darkbg flex flex-col items-center justify-center p-6">
+        <div class="mb-10 text-center animate-fade-in-up">
+            <div class="flex items-center justify-center gap-3 mb-4">
+                <i data-lucide="shield-check" class="w-12 h-12 text-primary"></i>
+                <h1 class="text-4xl font-heading font-bold tracking-tight">ClaimMate <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">AI</span></h1>
+            </div>
+            <p class="text-gray-400 text-lg">Next-Gen Insurance Claims Platform</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl animate-fade-in-up" style="animation-delay: 0.1s;">
+            <!-- Customer Login Card -->
+            <div class="bg-darksec border border-darkborder rounded-2xl p-8 flex flex-col items-center text-center shadow-2xl hover:border-primary/50 transition-all group relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div class="w-20 h-20 bg-darkcard rounded-full flex items-center justify-center mb-6 shadow-inner border border-darkborder group-hover:border-primary/50 transition-colors z-10">
+                    <i data-lucide="user" class="w-10 h-10 text-primary"></i>
+                </div>
+                <h2 class="text-2xl font-bold font-heading mb-2 z-10">Customer Portal</h2>
+                <p class="text-gray-400 text-sm mb-8 z-10 flex-1">Access your policies, submit new claims, and check the real-time status of your payouts.</p>
+                
+                <div class="w-full space-y-3 z-10">
+                    <div class="text-left text-xs text-gray-500 font-mono bg-darkcard p-2 rounded border border-darkborder">Auto-filled: jane.doe@example.com</div>
+                    <button class="w-full btn-primary py-3 rounded-xl shadow-[0_0_15px_rgba(59,157,248,0.2)] group-hover:shadow-[0_0_25px_rgba(59,157,248,0.4)] flex items-center justify-center gap-2" onclick="handleLogin('customer')">
+                        Login as Customer <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Agent Login Card -->
+            <div class="bg-darksec border border-darkborder rounded-2xl p-8 flex flex-col items-center text-center shadow-2xl hover:border-accent/50 transition-all group relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div class="w-20 h-20 bg-darkcard rounded-full flex items-center justify-center mb-6 shadow-inner border border-darkborder group-hover:border-accent/50 transition-colors z-10">
+                    <i data-lucide="headset" class="w-10 h-10 text-accent"></i>
+                </div>
+                <h2 class="text-2xl font-bold font-heading mb-2 z-10">Agent Workspace</h2>
+                <p class="text-gray-400 text-sm mb-8 z-10 flex-1">Review escalated claims, leverage AI insights, and manage customer interactions efficiently.</p>
+                
+                <div class="w-full space-y-3 z-10">
+                    <div class="text-left text-xs text-gray-500 font-mono bg-darkcard p-2 rounded border border-darkborder">Auto-filled: agent.smith@claimmate.ai</div>
+                    <button class="w-full bg-accent hover:bg-[#3bc1f8] text-darkbg font-semibold py-3 px-4 rounded-xl shadow-[0_0_15px_rgba(79,209,255,0.2)] group-hover:shadow-[0_0_25px_rgba(79,209,255,0.4)] transition-all flex items-center justify-center gap-2" onclick="handleLogin('agent')">
+                        Login as Agent <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-12 text-sm text-gray-500 flex items-center gap-2 animate-fade-in-up" style="animation-delay: 0.2s;">
+            <i data-lucide="shield" class="w-4 h-4"></i> Secure 256-bit AES Encryption
+        </div>
+    </div>
+
+    <!-- Main App Wrapper (Hidden initially) -->
+    <div id="main-app-wrapper" class="hidden w-full h-full relative">
+        <!-- Mobile Header -->
+    <div class="md:hidden fixed top-0 w-full h-16 bg-darksec border-b border-darkborder flex items-center justify-between px-4 z-50">
+        <div class="flex items-center gap-2">
+            <i data-lucide="shield-check" class="text-primary w-6 h-6"></i>
+            <span class="font-heading font-bold text-lg">ClaimMate AI</span>
+        </div>
+        <button id="mobile-menu-btn" class="text-gray-400 hover:text-white">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar" class="fixed md:static w-64 h-full bg-darksec border-r border-darkborder flex flex-col transition-transform duration-300 z-40 transform -translate-x-full md:translate-x-0 pt-16 md:pt-0 shrink-0">
+        <div class="hidden md:flex items-center gap-3 p-6 border-b border-darkborder">
+            <div class="bg-gradient-to-br from-primary to-accent p-2 rounded-lg">
+                <i data-lucide="shield-check" class="text-white w-6 h-6"></i>
+            </div>
+            <span class="font-heading font-bold text-xl tracking-wide">ClaimMate</span>
+        </div>
+
+        <!-- Customer Links -->
+        <div class="flex-1 overflow-y-auto py-4 px-3 space-y-4 nav-group customer-only">
+            
+            <!-- General -->
+            <div class="space-y-1">
+                <a href="#home" class="nav-link active group" data-view="home">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 group-hover:text-primary transition-colors"></i><span>Home</span>
+                </a>
+                <a href="#chat" class="nav-link group" data-view="chat">
+                    <i data-lucide="message-square" class="w-5 h-5 group-hover:text-primary transition-colors"></i><span>Ask ClaimMate AI</span>
+                </a>
+            </div>
+
+            <!-- Insurance -->
+            <div class="space-y-1">
+                <p class="px-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Insurance</p>
+                <a href="#policies" class="nav-link group" data-view="policies">
+                    <i data-lucide="shield" class="w-5 h-5 group-hover:text-primary transition-colors"></i><span>My Policies</span>
+                </a>
+                <a href="#simulator" class="nav-link group" data-view="simulator">
+                    <i data-lucide="check-square" class="w-5 h-5 group-hover:text-primary transition-colors"></i><span>Pre-Submission Check</span>
+                </a>
+                <a href="#documents" class="nav-link group" data-view="documents">
+                    <i data-lucide="scan-line" class="w-5 h-5 group-hover:text-primary transition-colors"></i><span>Document Scanner</span>
+                </a>
+                <a href="#tracker" class="nav-link group" data-view="tracker">
+                    <i data-lucide="activity" class="w-5 h-5 group-hover:text-primary transition-colors"></i><span>Claim Tracker</span>
+                </a>
+                <a href="#translator" class="nav-link group" data-view="translator">
+                    <i data-lucide="book-open" class="w-5 h-5 group-hover:text-primary transition-colors"></i><span>Rejection Decoder</span>
+                </a>
+            </div>
+
+            <!-- Loans -->
+            <div class="space-y-1">
+                <p class="px-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Loans <span class="bg-primary/20 text-primary text-[9px] px-1.5 py-0.5 rounded ml-1">NEW</span></p>
+                <a href="#loan-readiness" class="nav-link group" data-view="loan-readiness">
+                    <i data-lucide="target" class="w-5 h-5 group-hover:text-primary transition-colors"></i><span>Loan Readiness</span>
+                </a>
+                <a href="#loan-simulator" class="nav-link group" data-view="loan-simulator">
+                    <i data-lucide="pie-chart" class="w-5 h-5 group-hover:text-primary transition-colors"></i><span>Explore Scenarios</span>
+                </a>
+                <a href="#loan-explainer" class="nav-link group" data-view="loan-explainer">
+                    <i data-lucide="file-search" class="w-5 h-5 group-hover:text-primary transition-colors"></i><span>Understand Your Loan</span>
+                </a>
+            </div>
+
+            <!-- FinTech -->
+            <div class="space-y-1">
+                <p class="px-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">FinTech <span class="bg-primary/20 text-primary text-[9px] px-1.5 py-0.5 rounded ml-1">NEW</span></p>
+                <a href="#fintech-analyzer" class="nav-link group" data-view="fintech-analyzer">
+                    <i data-lucide="bar-chart-2" class="w-5 h-5 group-hover:text-primary transition-colors"></i><span>Statement Analyzer</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Agent Links -->
+        <div class="flex-1 overflow-y-auto py-4 px-3 space-y-1 nav-group agent-only hidden">
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Workspace</p>
+            <a href="#agent-dash" class="nav-link group" data-view="agent-dash">
+                <i data-lucide="inbox" class="w-5 h-5 group-hover:text-primary transition-colors"></i><span>Escalation Queue</span>
+            </a>
+            <a href="#policies" class="nav-link group" data-view="policies">
+                <i data-lucide="users" class="w-5 h-5 group-hover:text-primary transition-colors"></i><span>Customer Database</span>
+            </a>
+        </div>
+
+
+        <div class="p-4 border-t border-darkborder customer-only nav-group">
+            <div class="flex items-center gap-3 p-2 rounded-lg bg-darkbg/50">
+                <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center font-semibold">JD</div>
+                <div>
+                    <p class="text-sm font-medium">Jane Doe</p>
+                    <p class="text-xs text-gray-400">Premium Member</p>
+                </div>
+            </div>
+            <div class="mt-3 text-[10px] text-gray-500 flex items-center gap-1 justify-center trust-badge cursor-pointer" onclick="openExplainPanel('ai_hybrid')">
+                <i data-lucide="shield" class="w-3 h-3 text-green-400"></i> AI-Assisted, Human-Reviewed
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 h-full flex flex-col bg-darkbg pt-16 md:pt-0 relative overflow-hidden" id="main-content">
+        
+        <!-- Top App Bar (New) -->
+        <header class="h-16 border-b border-darkborder bg-darkbg/80 backdrop-blur-md flex items-center justify-between px-6 shrink-0 z-20">
+            <div class="flex items-center gap-2">
+                <!-- Logout Button -->
+                <div class="bg-darksec p-1 rounded-lg flex items-center border border-darkborder">
+                    <button class="px-3 py-1.5 text-xs font-medium rounded-md text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all flex items-center gap-1" onclick="handleLogout()">
+                        <i data-lucide="log-out" class="w-3 h-3"></i> Log Out
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 relative">
+                <!-- Language Toggle -->
+                <select id="lang-toggle" class="bg-darksec border border-darkborder rounded-lg text-sm text-gray-300 focus:outline-none focus:border-primary px-2 py-1 transition-colors cursor-pointer">
+                    <option value="en">EN</option>
+                    <option value="hi">HI</option>
+                </select>
+
+                <!-- Notification Bell (Smart Nudges) -->
+                <button id="btn-notifications" class="relative p-2 text-gray-400 hover:text-white transition-colors">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                    <span id="notif-badge" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full hidden"></span>
+                </button>
+
+                <!-- Notification Dropdown -->
+                <div id="notif-dropdown" class="absolute top-12 right-0 w-80 bg-darkcard border border-darkborder rounded-xl shadow-2xl hidden flex-col overflow-hidden transform origin-top-right transition-all">
+                    <div class="p-3 border-b border-darkborder bg-darksec/50 flex justify-between items-center">
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Smart Nudges</span>
+                    </div>
+                    <div id="notif-feed" class="max-h-64 overflow-y-auto divide-y divide-darkborder">
+                        <!-- Feed populated by JS -->
+                        <div class="p-4 text-center text-sm text-gray-500 empty-state">No new nudges.</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- View Container -->
+        <div class="flex-1 overflow-y-auto scroll-smooth relative" id="view-container">
+            
+            <!-- ==================== HOME / DASHBOARD ==================== -->
+            <section id="view-home" class="view-section active p-6 max-w-6xl mx-auto">
+                <header class="mb-10 text-center md:text-left">
+                    <h1 class="text-4xl font-heading font-bold mb-4 text-gradient">Financial journeys shouldn't feel complicated.</h1>
+                    <p class="text-gray-400 text-lg max-w-2xl">Welcome back, Jane. ClaimMate AI turns complex insurance, lending, and FinTech processes into simple, explainable journeys.</p>
+                </header>
+
+                <!-- WHAT SHOULD I DO NEXT? (Universal AI) -->
+                <div class="dashboard-card border-primary/30 bg-primary/5 mb-10 shadow-[0_0_20px_rgba(59,157,248,0.1)] relative overflow-hidden">
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl"></div>
+                    <div class="flex flex-col md:flex-row items-center gap-6 relative z-10">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0 shadow-lg">
+                            <i data-lucide="sparkles" class="w-8 h-8 text-white"></i>
+                        </div>
+                        <div class="flex-1 text-center md:text-left">
+                            <h2 class="text-xl font-heading font-bold text-white mb-1">✨ What should I do next?</h2>
+                            <p id="home-action-text" class="text-sm text-gray-300">Based on your active Claim #CLM-9021, your discharge summary is missing.</p>
+                        </div>
+                        <button id="home-action-btn" class="btn-primary py-3 px-8 text-sm w-full md:w-auto" onclick="navigateTo('simulator')">Upload Document</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Insurance Journey -->
+                    <div class="dashboard-card group hover:-translate-y-1 transition-transform cursor-pointer" onclick="navigateTo('tracker')">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i data-lucide="shield" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-xl font-heading font-bold mb-2">Insurance</h3>
+                        <p class="text-sm text-gray-400 mb-6">Understand your policy, prepare documents, and track claims.</p>
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-gray-400">Claim #CLM-9021</span>
+                                <span id="home-claim-status" class="text-yellow-400">Action Required</span>
+                            </div>
+                            <div class="w-full bg-darksec rounded-full h-1.5"><div id="home-claim-progress" class="bg-yellow-400 h-1.5 rounded-full" style="width: 40%"></div></div>
+                        </div>
+                        <span class="text-sm font-medium text-blue-400 flex items-center gap-1">Continue Journey <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                    </div>
+
+                    <!-- Loans Journey -->
+                    <div class="dashboard-card group hover:-translate-y-1 transition-transform cursor-pointer" onclick="navigateTo('loan-readiness')">
+                        <div class="w-12 h-12 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i data-lucide="coins" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-xl font-heading font-bold mb-2">Loans</h3>
+                        <p class="text-sm text-gray-400 mb-6">Check readiness, explore EMI scenarios, and understand agreements.</p>
+                        <div class="space-y-3 mb-6 opacity-60">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-gray-400">Personal Loan</span>
+                                <span class="text-gray-500">Not Started</span>
+                            </div>
+                            <div class="w-full bg-darksec rounded-full h-1.5"></div>
+                        </div>
+                        <span class="text-sm font-medium text-green-400 flex items-center gap-1">Start Journey <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                    </div>
+
+                    <!-- FinTech Journey -->
+                    <div class="dashboard-card group hover:-translate-y-1 transition-transform cursor-pointer" onclick="navigateTo('fintech-analyzer')">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i data-lucide="wallet" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-xl font-heading font-bold mb-2">FinTech</h3>
+                        <p class="text-sm text-gray-400 mb-6">Analyze spending, detect recurring payments, and get insights.</p>
+                        <div class="space-y-3 mb-6 opacity-60">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-gray-400">Monthly Analysis</span>
+                                <span class="text-gray-500">Not Started</span>
+                            </div>
+                            <div class="w-full bg-darksec rounded-full h-1.5"></div>
+                        </div>
+                        <span class="text-sm font-medium text-purple-400 flex items-center gap-1">Start Journey <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== CLAIM SIMULATOR (PRE-SUBMISSION CHECK) ==================== -->
+            <section id="view-simulator" class="view-section p-6 max-w-6xl mx-auto">
+                <header class="mb-8 flex justify-between items-end">
+                    <div>
+                        <h1 class="text-3xl font-heading font-bold mb-2 text-gradient">ClaimMate Pre-Submission Check</h1>
+                        <p class="text-gray-400">AI-powered final verification before you submit your claim.</p>
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Breakdown -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="dashboard-card border-primary/20 bg-primary/5 shadow-[0_0_15px_rgba(59,157,248,0.05)]">
+                            <h3 class="font-heading font-bold text-xl mb-6">Claim Readiness Breakdown</h3>
+                            
+                            <div class="space-y-6">
+                                <div class="flex justify-between items-center border-b border-darkborder pb-4">
+                                    <span class="text-gray-300">Coverage Match</span>
+                                    <span class="text-green-400 font-bold text-lg">92%</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b border-darkborder pb-4">
+                                    <span class="text-gray-300">Documents Complete</span>
+                                    <span class="text-yellow-400 font-bold text-lg" id="doc-complete-stat">50%</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b border-darkborder pb-4">
+                                    <span class="text-gray-300">Document Quality</span>
+                                    <span class="text-yellow-400 font-bold text-lg" id="doc-quality-stat">86%</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b border-darkborder pb-4">
+                                    <span class="text-gray-300">Policy Information</span>
+                                    <span class="text-green-400 font-bold text-lg">Verified</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Items -->
+                        <div class="dashboard-card border-yellow-500/20 bg-yellow-500/5 relative" id="presub-action-card">
+                            <div class="flex items-center gap-3 mb-4">
+                                <i data-lucide="alert-triangle" class="w-6 h-6 text-yellow-500"></i>
+                                <h3 class="font-heading font-bold text-lg text-yellow-500"><span id="presub-issue-count">2</span> things need your attention before submission</h3>
+                            </div>
+                            
+                            <div class="space-y-4" id="presub-issues-list">
+                                <!-- Issue 1 -->
+                                <div class="bg-darksec border border-darkborder rounded-xl p-4 flex flex-col md:flex-row justify-between items-center gap-4" id="issue-1">
+                                    <div>
+                                        <p class="font-bold text-white mb-1 text-sm">Hospital bill image is unclear</p>
+                                        <p class="text-xs text-gray-400">The bottom-right section containing the total amount is difficult to read. Quality: 68%.</p>
+                                    </div>
+                                    <button class="btn-primary py-2 px-4 text-xs shrink-0 w-full md:w-auto" onclick="fixPresubIssue('issue-1')">Upload Clearer Bill</button>
+                                </div>
+                                
+                                <!-- Issue 2 -->
+                                <div class="bg-darksec border border-darkborder rounded-xl p-4 flex flex-col md:flex-row justify-between items-center gap-4" id="issue-2">
+                                    <div>
+                                        <p class="font-bold text-white mb-1 text-sm">Bank details document is missing</p>
+                                        <p class="text-xs text-gray-400">Required for NEFT transfer payout.</p>
+                                    </div>
+                                    <button class="btn-primary py-2 px-4 text-xs shrink-0 w-full md:w-auto" onclick="fixPresubIssue('issue-2')">Upload Document</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Success State (Hidden initially) -->
+                            <div id="presub-success" class="hidden text-center py-6">
+                                <div class="w-16 h-16 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mx-auto mb-4">
+                                    <i data-lucide="check-circle" class="w-8 h-8"></i>
+                                </div>
+                                <h3 class="font-bold text-xl text-green-400 mb-2">Your claim is ready for submission.</h3>
+                                <p class="text-sm text-gray-400 mb-6">All documents are verified and coverage looks good.</p>
+                                <button class="btn-primary py-3 px-8 shadow-[0_0_15px_rgba(59,157,248,0.3)] animate-pulse hover:animate-none w-full md:w-auto" onclick="navigateTo('tracker')">Submit Claim to Insurer</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Outputs -->
+                    <div>
+                        <div class="dashboard-card sticky top-6 text-center">
+                            <div class="flex justify-between items-center mb-2">
+                                <h2 class="text-lg font-heading font-semibold">Submission Risk</h2>
+                                <button class="text-gray-500 hover:text-primary transition-colors" onclick="openExplainPanel('sim_engine')" title="How is this calculated?">
+                                    <i data-lucide="help-circle" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="relative w-48 h-48 mx-auto my-6">
+                                <canvas id="sim-score-chart"></canvas>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span class="text-3xl font-bold font-heading text-yellow-400" id="sim-score-value">MEDIUM</span>
+                                </div>
+                            </div>
+                            
+                            <div class="text-left bg-darksec p-4 rounded-xl border border-darkborder mt-4">
+                                <h4 class="text-sm font-semibold mb-3 flex items-center gap-2 text-gray-300">
+                                    <i data-lucide="info" class="w-4 h-4"></i> Why Medium Risk?
+                                </h4>
+                                <ul class="space-y-2 text-xs text-gray-400" id="presub-risk-reasons">
+                                    <li>• One document is missing</li>
+                                    <li>• One uploaded document is low quality</li>
+                                    <li>• Policy contains a condition relevant to this claim</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== REJECTION TRANSLATOR ==================== -->
+            <section id="view-translator" class="view-section p-6 max-w-5xl mx-auto">
+                <header class="mb-8">
+                    <h1 class="text-3xl font-heading font-bold mb-2">Rejection Translator</h1>
+                    <p class="text-gray-400">Decode complex insurance jargon into plain English instantly.</p>
+                </header>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <label class="text-sm text-gray-400">Select a mock rejection letter:</label>
+                        <select id="trans-select" class="w-full bg-darkcard border border-darkborder rounded-lg px-4 py-3 text-sm focus:border-primary focus:outline-none mb-4">
+                            <option value="med-nec">Letter 1: Not Medically Necessary</option>
+                            <option value="pre-exist">Letter 2: Pre-Existing Exclusion</option>
+                        </select>
+
+                        <div class="dashboard-card font-serif text-gray-300 text-sm leading-relaxed relative" id="trans-document">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- AI Annotation Popover -->
+                        <div class="dashboard-card border-primary/50 shadow-[0_0_15px_rgba(59,157,248,0.1)] transition-all min-h-[150px] flex flex-col justify-center" id="trans-explanation">
+                            <div class="text-center text-gray-500 empty-state">
+                                <i data-lucide="cursor-click" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+                                <p>Hover or click highlighted text to translate.</p>
+                            </div>
+                        </div>
+
+                        <!-- Actionable Summary -->
+                        <div class="bg-primary/5 border border-primary/20 rounded-xl p-5" id="trans-summary">
+                            <h3 class="text-primary font-medium flex items-center gap-2 mb-2"><i data-lucide="zap" class="w-4 h-4"></i> Bottom Line</h3>
+                            <p class="text-sm text-gray-300">Select a letter to generate an AI summary of your next steps.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== DOCUMENT QUALITY SCANNER ==================== -->
+            <section id="view-documents" class="view-section p-6 max-w-4xl mx-auto">
+                <header class="mb-8">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h1 class="text-3xl font-heading font-bold mb-2">Document Scanner</h1>
+                            <p class="text-gray-400">Real-time quality analysis for claim documents.</p>
+                        </div>
+                        <button class="text-gray-500 hover:text-primary transition-colors flex items-center gap-1 text-sm bg-darkcard px-3 py-1.5 rounded-lg border border-darkborder" onclick="openExplainPanel('quality_scanner')">
+                            <i data-lucide="shield" class="w-4 h-4 text-green-400"></i> AI Verification
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Interactive Upload Zone -->
+                <div class="border-2 border-dashed border-darkborder rounded-2xl p-10 text-center hover:border-primary bg-darkcard/30 transition-all cursor-pointer relative overflow-hidden group mb-8" id="scanner-zone">
+                    <input type="file" id="scanner-upload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".pdf,.png,.jpg">
+                    
+                    <div class="relative z-0 pointer-events-none transition-transform group-hover:scale-105" id="scanner-idle">
+                        <div class="w-16 h-16 mx-auto bg-darksec border border-darkborder rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+                            <i data-lucide="scan" class="w-8 h-8 text-primary"></i>
+                        </div>
+                        <h3 class="font-heading font-medium text-xl mb-2">Drop a mock document here</h3>
+                        <p class="text-sm text-gray-400">Test the real-time AI scanning pipeline.</p>
+                    </div>
+
+                    <!-- Scanning State (Hidden initially) -->
+                    <div class="hidden flex-col items-center justify-center h-full absolute inset-0 bg-darkcard z-20" id="scanner-active">
+                        <div class="relative w-16 h-16 mb-4">
+                            <i data-lucide="file-text" class="w-12 h-12 text-gray-500 absolute top-2 left-2"></i>
+                            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-primary/50 to-transparent animate-scan"></div>
+                        </div>
+                        <h3 class="font-medium text-white mb-4">Analyzing Document...</h3>
+                        <div class="w-64 space-y-2 text-sm text-left" id="scanner-checks">
+                            <!-- Populated by JS sequence -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Area -->
+                <div id="scanner-results" class="hidden dashboard-card animate-fade-in border-green-500/30 bg-green-500/5">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- ==================== AGENT ESCALATION QUEUE (AGENT VIEW ONLY) ==================== -->
+            <section id="view-agent-dash" class="view-section p-6 max-w-6xl mx-auto hidden">
+                <header class="mb-8 flex justify-between items-end">
+                    <div>
+                        <h1 class="text-3xl font-heading font-bold mb-2">Escalation Queue</h1>
+                        <p class="text-gray-400">Claims flagged by AI requiring human sign-off.</p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-yellow-500/10 text-yellow-500 px-3 py-1.5 rounded-lg border border-yellow-500/20 text-sm font-medium">
+                        <i data-lucide="alert-triangle" class="w-4 h-4"></i> 2 Pending Review
+                    </div>
+                </header>
+
+                <div class="space-y-4" id="agent-queue">
+                    <!-- Escalated Claim Card -->
+                    <div class="bg-darkcard border border-darkborder rounded-xl overflow-hidden hover:border-escalated transition-colors">
+                        <div class="p-5 flex justify-between items-center border-b border-darkborder bg-darksec/30">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-escalated/20 text-escalated rounded-lg flex items-center justify-center">
+                                    <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-white">Claim #CLM-9021 <span class="font-normal text-gray-400 text-sm ml-2">Jane Doe</span></h3>
+                                    <p class="text-xs text-gray-400 mt-1">Flagged Reason: High cost anomaly ($12,500 vs Expected $5,000)</p>
+                                </div>
+                            </div>
+                            <button class="text-sm bg-darksec border border-darkborder px-4 py-2 rounded-lg hover:text-white hover:border-gray-500 transition-all" onclick="this.parentElement.nextElementSibling.classList.toggle('hidden')">
+                                View AI Report
+                            </button>
+                        </div>
+                        <!-- Collapsible AI Report -->
+                        <div class="p-5 hidden bg-darkbg">
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="text-xs font-semibold text-primary uppercase tracking-wider mb-3 flex items-center gap-1"><i data-lucide="bot" class="w-4 h-4"></i> AI Recommendation</h4>
+                                    <p class="text-sm text-gray-300 leading-relaxed mb-4">
+                                        Documents are 100% verified and policy covers inpatient treatment. However, the billed amount exceeds the standard deviation for this procedure by 150%. 
+                                        <strong>Recommendation: Partial Approval ($5,000) pending hospital itemization.</strong>
+                                    </p>
+                                    <button class="text-xs text-accent hover:underline flex items-center gap-1" onclick="openExplainPanel('agent_escalation')"><i data-lucide="help-circle" class="w-3 h-3"></i> View reasoning trail</button>
+                                </div>
+                                <div class="flex flex-col justify-center items-end gap-3 border-l border-darkborder pl-6">
+                                    <button class="w-full btn-primary bg-green-600 hover:bg-green-500 py-2.5 rounded-lg text-sm font-medium flex justify-center items-center gap-2" onclick="approveClaim(this)">
+                                        <i data-lucide="check" class="w-4 h-4"></i> Approve Full Amount
+                                    </button>
+                                    <button class="w-full bg-darksec border border-darkborder py-2.5 rounded-lg text-sm font-medium hover:bg-darkborder transition-colors flex justify-center items-center gap-2" onclick="alert('Manual Review Triggered')">
+                                        <i data-lucide="user-plus" class="w-4 h-4"></i> Request Itemization
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        <!-- ==================== ASK CLAIMMATE (CHAT) ==================== -->
+        <section id="view-chat" class="view-section h-full flex flex-col">
+            <header class="p-6 border-b border-darkborder shrink-0 bg-darkbg/95 backdrop-blur sticky top-0 z-10 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-heading font-bold">Ask ClaimMate</h1>
+                    <p class="text-sm text-gray-400">Your AI policy expert. Upload documents or ask questions.</p>
+                </div>
+                <div class="hidden sm:flex items-center gap-2 text-xs text-gray-400 bg-darkcard px-3 py-1.5 rounded-full border border-darkborder">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    AI Online
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6" id="chat-container">
+                <div class="max-w-3xl mx-auto space-y-6" id="chat-messages">
+                    <!-- Initial AI Greeting -->
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0">
+                            <i data-lucide="bot" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div class="bg-darkcard border border-darkborder rounded-2xl rounded-tl-sm p-4 max-w-[85%]">
+                            <p class="text-sm">Hello Jane. I'm ClaimMate AI. How can I help you today?</p>
+                            <p class="text-sm mt-2">You can ask me about policy coverage, request a document checklist, or upload a document for quick analysis.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suggestion Chips -->
+            <div class="shrink-0 p-2 sm:px-6 max-w-4xl mx-auto w-full">
+                <div class="flex overflow-x-auto gap-2 pb-2 hide-scrollbar" id="chat-suggestions">
+                    <button class="chip" onclick="sendSuggestedMessage('Can I claim this treatment?')">Can I claim treatment?</button>
+                    <button class="chip" onclick="sendSuggestedMessage('What documents do I need for a health claim?')">Documents for health claim?</button>
+                    <button class="chip" onclick="sendSuggestedMessage('Why was my previous claim rejected?')">Why was it rejected?</button>
+                </div>
+            </div>
+
+            <div class="p-4 sm:p-6 border-t border-darkborder bg-darkbg shrink-0">
+                <div class="max-w-3xl mx-auto flex gap-2">
+                    <!-- Mock File Upload -->
+                    <label class="w-12 h-12 shrink-0 rounded-xl bg-darkcard border border-darkborder flex items-center justify-center cursor-pointer hover:border-primary transition-colors text-gray-400 hover:text-white">
+                        <input type="file" class="hidden" id="chat-file-upload" accept=".pdf,.png,.jpg,.jpeg">
+                        <i data-lucide="paperclip" class="w-5 h-5"></i>
+                    </label>
+                    <div class="flex-1 relative">
+                        <input type="text" id="chat-input" class="w-full h-12 bg-darkcard border border-darkborder rounded-xl pl-4 pr-20 text-sm focus:outline-none focus:border-primary transition-colors" placeholder="Type your message...">
+                        <button id="chat-mic-btn" class="absolute right-10 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-colors" title="Voice Assist">
+                            <i data-lucide="mic" class="w-4 h-4" id="mic-icon"></i>
+                        </button>
+                        <button id="chat-send-btn" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white hover:scale-105 transition-transform">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- ==================== CLAIM TRACKER ==================== -->
+        <section id="view-tracker" class="view-section p-6 max-w-4xl mx-auto">
+            <header class="mb-8">
+                <div class="flex justify-between items-end">
+                    <div>
+                        <h1 class="text-3xl font-heading font-bold mb-2">Claim Tracker</h1>
+                        <p class="text-gray-400">Real-time status for Claim <span class="text-white font-medium">#CLM-9021</span></p>
+                    </div>
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm text-gray-400">Estimated Resolution</p>
+                        <p class="font-bold text-accent">Oct 20 - Oct 22</p>
+                        <!-- Claim Health Timeline Bar -->
+                        <div class="mt-2 w-48 text-left" title="Based on historical data for similar claims">
+                            <div class="flex justify-between text-[10px] text-gray-500 mb-1">
+                                <span>Your Claim Speed</span>
+                                <span>Avg Speed</span>
+                            </div>
+                            <div class="h-1.5 w-full bg-darkborder rounded-full overflow-hidden flex relative">
+                                <div class="bg-primary h-full absolute left-0" style="width: 40%;"></div>
+                                <div class="bg-gray-500 h-full absolute top-0" style="left: 40%; width: 20%; opacity: 0.5;"></div>
+                                <!-- Vertical tick for average -->
+                                <div class="absolute w-0.5 h-full bg-gray-400 left-[60%]"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Visual Stepper -->
+            <div class="dashboard-card mb-8">
+                <div class="relative">
+                    <!-- Progress Bar Background -->
+                    <div class="absolute top-1/2 left-0 w-full h-1 bg-darkborder -translate-y-1/2 hidden sm:block"></div>
+                    <!-- Active Progress Bar -->
+                    <div class="absolute top-1/2 left-0 h-1 bg-gradient-to-r from-primary to-accent -translate-y-1/2 hidden sm:block transition-all duration-1000" style="width: 50%"></div>
+                    
+                    <div class="flex flex-col sm:flex-row justify-between relative z-10 gap-6 sm:gap-0">
+                        <!-- Step 1 -->
+                        <div class="flex sm:flex-col items-center gap-4 sm:gap-2 text-center group">
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center shrink-0 border-4 border-darkcard ring-2 ring-primary/20">
+                                <i data-lucide="file-up" class="w-4 h-4 text-white"></i>
+                            </div>
+                            <div class="text-left sm:text-center">
+                                <p class="text-sm font-medium text-white">Submitted</p>
+                                <p class="text-xs text-gray-400">Oct 12</p>
+                            </div>
+                        </div>
+                        <!-- Step 2 -->
+                        <div class="flex sm:flex-col items-center gap-4 sm:gap-2 text-center group">
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center shrink-0 border-4 border-darkcard ring-2 ring-primary/20">
+                                <i data-lucide="scan" class="w-4 h-4 text-white"></i>
+                            </div>
+                            <div class="text-left sm:text-center">
+                                <p class="text-sm font-medium text-white">AI Verification</p>
+                                <p class="text-xs text-gray-400">Oct 12</p>
+                            </div>
+                        </div>
+                        <!-- Step 3 (Active) -->
+                        <div class="flex sm:flex-col items-center gap-4 sm:gap-2 text-center group">
+                            <div class="relative w-10 h-10 rounded-full bg-darkbg border-2 border-accent flex items-center justify-center shrink-0">
+                                <div class="absolute inset-0 rounded-full bg-accent animate-ping opacity-20"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-accent"></div>
+                            </div>
+                            <div class="text-left sm:text-center">
+                                <p class="text-sm font-medium text-accent">Under Review</p>
+                                <p class="text-xs text-gray-400">In Progress</p>
+                            </div>
+                        </div>
+                        <!-- Step 4 -->
+                        <div class="flex sm:flex-col items-center gap-4 sm:gap-2 text-center group">
+                            <div class="w-10 h-10 rounded-full bg-darksec border border-darkborder flex items-center justify-center shrink-0">
+                                <i data-lucide="scale" class="w-4 h-4 text-gray-500"></i>
+                            </div>
+                            <div class="text-left sm:text-center">
+                                <p class="text-sm font-medium text-gray-500">Decision</p>
+                                <p class="text-xs text-gray-600">Pending</p>
+                            </div>
+                        </div>
+                        <!-- Step 5 -->
+                        <div class="flex sm:flex-col items-center gap-4 sm:gap-2 text-center group">
+                            <div class="w-10 h-10 rounded-full bg-darksec border border-darkborder flex items-center justify-center shrink-0">
+                                <i data-lucide="banknote" class="w-4 h-4 text-gray-500"></i>
+                            </div>
+                            <div class="text-left sm:text-center">
+                                <p class="text-sm font-medium text-gray-500">Payout</p>
+                                <p class="text-xs text-gray-600">Pending</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Log -->
+            <h2 class="text-lg font-heading font-semibold mb-4">Status Updates</h2>
+            <div class="relative pl-6 border-l-2 border-darkborder space-y-8 mb-8" id="tracker-timeline">
+                <!-- Populated via JS -->
+            </div>
+
+            <!-- Gamified Submit Journey Card -->
+            <div class="dashboard-card border-primary/20 bg-primary/5" id="submit-journey-card">
+                <h3 class="text-lg font-heading font-semibold mb-4 text-primary" data-i18n="journey_title">Claim Submission Journey</h3>
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex gap-2">
+                        <span class="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-medium border border-green-500/30 flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> Policy Match</span>
+                        <span class="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-medium border border-green-500/30 flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> Docs Scanned</span>
+                    </div>
+                    <button id="btn-submit-gamified" class="btn-primary py-2 px-6 shadow-[0_0_15px_rgba(59,157,248,0.3)] animate-pulse hover:animate-none">Submit Claim</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== MY POLICIES ==================== -->
+        <section id="view-policies" class="view-section p-6 max-w-6xl mx-auto">
+            <header class="mb-8">
+                <h1 class="text-3xl font-heading font-bold mb-2">My Policies</h1>
+                <p class="text-gray-400">View your active coverage details.</p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="policies-grid">
+                <!-- Populated via JS -->
+            </div>
+
+            <!-- Policy Detail Modal -->
+            <div id="policy-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+                <div class="bg-darkcard border border-darkborder rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl transform scale-95 transition-transform" id="policy-modal-content">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== LOANS: READINESS CHECK ==================== -->
+        <section id="view-loan-readiness" class="view-section p-6 max-w-4xl mx-auto">
+            <header class="mb-8">
+                <h1 class="text-3xl font-heading font-bold mb-2 text-gradient">Loan Readiness</h1>
+                <p class="text-gray-400">Check if your profile matches typical lender criteria.</p>
+            </header>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-4 dashboard-card">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Requested Amount (₹)</label>
+                        <input type="number" id="loan-amt" class="w-full bg-darksec border border-darkborder rounded-lg p-3 text-white" value="500000">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Tenure (Months)</label>
+                        <select id="loan-tenure" class="w-full bg-darksec border border-darkborder rounded-lg p-3 text-white">
+                            <option value="12">12 Months</option>
+                            <option value="24">24 Months</option>
+                            <option value="36" selected>36 Months</option>
+                            <option value="60">60 Months</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Monthly Income (₹)</label>
+                        <input type="number" id="loan-income" class="w-full bg-darksec border border-darkborder rounded-lg p-3 text-white" value="50000">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Existing Monthly Commitments (₹)</label>
+                        <input type="number" id="loan-commitments" class="w-full bg-darksec border border-darkborder rounded-lg p-3 text-white" value="12000">
+                    </div>
+                    <button class="btn-primary w-full mt-4" onclick="checkLoanReadiness(event)">Check Readiness</button>
+                </div>
+                
+                <div class="dashboard-card text-center flex flex-col justify-center border-green-500/20 bg-green-500/5 hidden" id="loan-readiness-result">
+                    <div class="w-16 h-16 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="check-circle" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-green-400 mb-2">Profile Looks Good</h3>
+                    <p class="text-sm text-gray-300 mb-4">Your application appears ready for the next stage based on the information provided.</p>
+                    <ul class="text-left text-sm text-gray-400 space-y-2 max-w-xs mx-auto mb-6">
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i> Income information</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-400"></i> Existing commitments</li>
+                        <li class="flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 text-yellow-400"></i> Missing: Income proof</li>
+                    </ul>
+                    <p class="text-[10px] text-gray-500 italic">Final approval depends on the lender's criteria and verification. This is an estimate.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== LOANS: SIMULATOR ==================== -->
+        <section id="view-loan-simulator" class="view-section p-6 max-w-5xl mx-auto">
+            <header class="mb-8">
+                <h1 class="text-3xl font-heading font-bold mb-2">Explore Loan Scenarios</h1>
+                <p class="text-gray-400">Understand the financial impact of different loan tenures.</p>
+            </header>
+            
+            <div class="dashboard-card mb-8">
+                <div class="flex flex-col sm:flex-row gap-4 items-center">
+                    <div class="flex-1 w-full">
+                        <label class="block text-sm text-gray-400 mb-1">Loan Amount (₹)</label>
+                        <input type="number" id="sim-loan-amt" class="w-full bg-darksec border border-darkborder rounded-lg p-3 text-white" value="500000">
+                    </div>
+                    <div class="flex-1 w-full">
+                        <label class="block text-sm text-gray-400 mb-1">Interest Rate (%)</label>
+                        <input type="number" id="sim-loan-rate" class="w-full bg-darksec border border-darkborder rounded-lg p-3 text-white" value="10.5" step="0.1">
+                    </div>
+                    <button class="btn-primary py-3 px-8 mt-6 w-full sm:w-auto" onclick="generateLoanScenarios(event)">Calculate</button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="loan-scenarios-grid">
+                <!-- Populated by JS -->
+            </div>
+            
+            <p class="text-xs text-gray-500 mt-6 text-center italic">Calculations are estimates. Actual lender terms may differ.</p>
+        </section>
+
+        <!-- ==================== LOANS: EXPLAINER ==================== -->
+        <section id="view-loan-explainer" class="view-section p-6 max-w-6xl mx-auto">
+            <header class="mb-8 flex justify-between items-end">
+                <div>
+                    <h1 class="text-3xl font-heading font-bold mb-2">Understand Your Loan</h1>
+                    <p class="text-gray-400">AI scans your agreement to highlight important terms before you sign.</p>
+                </div>
+                <button class="btn-primary py-2 px-4 text-sm" onclick="scanMockLoan()">Upload Demo Agreement</button>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 hidden animate-fade-in" id="loan-explainer-content">
+                <div class="space-y-6">
+                    <div class="dashboard-card">
+                        <h3 class="font-heading font-bold text-lg mb-4">Loan Summary</h3>
+                        <div class="grid grid-cols-3 gap-4 text-center divide-x divide-darkborder">
+                            <div>
+                                <p class="text-xs text-gray-400">Amount</p>
+                                <p class="font-bold text-white">₹5,00,000</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400">Interest</p>
+                                <p class="font-bold text-white">12% p.a.</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400">Tenure</p>
+                                <p class="font-bold text-white">36 Months</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card border-yellow-500/20 bg-yellow-500/5">
+                        <h3 class="font-heading font-bold text-lg text-yellow-500 mb-4 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-5 h-5"></i> Important Terms to Review</h3>
+                        <p class="text-sm text-gray-400 mb-4">The AI identified 3 sections you should carefully read.</p>
+                        
+                        <div class="space-y-3">
+                            <div class="bg-darksec p-4 rounded-xl border border-darkborder cursor-pointer hover:border-yellow-500/50 transition-colors" onclick="showLoanClause('prepayment')">
+                                <p class="font-bold text-white flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-yellow-500"></span> Prepayment Condition</p>
+                                <p class="text-xs text-gray-400 mt-1">Found in Section 7</p>
+                            </div>
+                            <div class="bg-darksec p-4 rounded-xl border border-darkborder cursor-pointer hover:border-yellow-500/50 transition-colors" onclick="showLoanClause('late_fee')">
+                                <p class="font-bold text-white flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500"></span> Late Payment Charge</p>
+                                <p class="text-xs text-gray-400 mt-1">Found in Section 9</p>
+                            </div>
+                            <div class="bg-darksec p-4 rounded-xl border border-darkborder cursor-pointer hover:border-yellow-500/50 transition-colors" onclick="showLoanClause('processing')">
+                                <p class="font-bold text-white flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-400"></span> Processing Fee</p>
+                                <p class="text-xs text-gray-400 mt-1">Found in Schedule A</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card flex flex-col justify-center items-center text-center p-8 border-primary/20 bg-primary/5" id="loan-clause-viewer">
+                    <i data-lucide="file-search" class="w-12 h-12 text-primary opacity-50 mb-4"></i>
+                    <p class="text-gray-400">Select a term on the left to see its explanation and original text.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== FINTECH: STATEMENT ANALYZER ==================== -->
+        <section id="view-fintech-analyzer" class="view-section p-6 max-w-6xl mx-auto">
+            <header class="mb-8 flex justify-between items-end">
+                <div>
+                    <h1 class="text-3xl font-heading font-bold mb-2">Statement Analyzer</h1>
+                    <p class="text-gray-400">Upload your bank statement for instant AI categorization and insights.</p>
+                </div>
+                <button class="btn-primary py-2 px-4 text-sm" onclick="analyzeMockStatement()">Analyze Demo Statement</button>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 hidden animate-fade-in" id="fintech-content">
+                <div class="dashboard-card">
+                    <h3 class="font-heading font-bold text-lg mb-4">Monthly Spending</h3>
+                    <div class="relative w-64 h-64 mx-auto">
+                        <canvas id="spending-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="dashboard-card border-primary/20 bg-primary/5">
+                        <h3 class="font-heading font-bold text-lg text-primary mb-3"><i data-lucide="zap" class="w-5 h-5 inline mr-1"></i> AI Insights</h3>
+                        <ul class="space-y-3 text-sm text-gray-300">
+                            <li><span class="text-gray-500 block text-xs">Largest category</span> Food (₹12,400)</li>
+                            <li><span class="text-gray-500 block text-xs">Recurring detected</span> 4 active subscriptions</li>
+                            <li><span class="text-gray-500 block text-xs">Commitments</span> ₹4,298 / month fixed outflow</li>
+                        </ul>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <h3 class="font-heading font-bold text-lg mb-4">Detected Recurring Payments</h3>
+                        <div class="space-y-3">
+                            <!-- Items -->
+                            <div class="flex justify-between items-center p-3 bg-darksec rounded-lg border border-darkborder group relative cursor-pointer" onclick="alert('Why detected? This payment appeared on similar dates in 4 consecutive months.')">
+                                <div>
+                                    <p class="font-bold text-white text-sm">Netflix</p>
+                                    <p class="text-xs text-gray-400">Monthly • 4 transactions</p>
+                                </div>
+                                <span class="font-bold text-white">₹499</span>
+                                <div class="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                    <span class="text-xs text-primary font-medium">Why was this detected?</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-3 bg-darksec rounded-lg border border-darkborder group relative cursor-pointer" onclick="alert('Why detected? Recurring mandate registered.')">
+                                <div>
+                                    <p class="font-bold text-white text-sm">Gym Membership</p>
+                                    <p class="text-xs text-gray-400">Monthly • 12 transactions</p>
+                                </div>
+                                <span class="font-bold text-white">₹2,500</span>
+                                <div class="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                    <span class="text-xs text-primary font-medium">Why was this detected?</span>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center p-3 bg-darksec rounded-lg border border-darkborder group relative cursor-pointer" onclick="alert('Why detected? Annual pattern detected based on past 2 years data.')">
+                                <div>
+                                    <p class="font-bold text-white text-sm">Car Insurance</p>
+                                    <p class="text-xs text-gray-400">Annual • 2 transactions</p>
+                                </div>
+                                <span class="font-bold text-white">₹14,500</span>
+                                <div class="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                    <span class="text-xs text-primary font-medium">Why was this detected?</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+            
+        </div>
+    </main>
+
+    <!-- Global Explainability Slide-out Panel -->
+    <div id="explain-panel" class="fixed top-0 right-0 w-96 h-full bg-darksec border-l border-darkborder shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-4 border-b border-darkborder flex justify-between items-center bg-darkbg">
+            <h2 class="font-heading font-semibold flex items-center gap-2 text-primary">
+                <i data-lucide="shield-check" class="w-5 h-5"></i> Trust & Reasoning
+            </h2>
+            <button class="text-gray-400 hover:text-white p-1" onclick="closeExplainPanel()">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div class="p-6 flex-1 overflow-y-auto" id="explain-content">
+            <!-- Dynamic Content -->
+        </div>
+        <div class="p-4 bg-darkbg border-t border-darkborder text-xs text-gray-500 text-center">
+            ClaimMate AI operates under "Human-in-the-loop" constraints. No critical rejections are automated.
+        </div>
+    </div>
+    
+    <!-- Overlay for Panels -->
+    <div id="explain-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden transition-opacity opacity-0" onclick="closeExplainPanel()"></div>
+
+    <!-- Policy X-Ray Modal -->
+    <div id="xray-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex flex-col p-4 sm:p-8">
+        <header class="flex justify-between items-center mb-8 shrink-0">
+            <div>
+                <h2 class="text-2xl font-heading font-bold text-white">Policy X-Ray</h2>
+                <p class="text-gray-400">Interactive Clause Map for Comprehensive Health Plan</p>
+            </div>
+            <button class="text-gray-400 hover:text-white" onclick="document.getElementById('xray-modal').classList.add('hidden')">
+                <i data-lucide="x" class="w-8 h-8"></i>
+            </button>
+        </header>
+        
+        <div class="flex-1 relative overflow-auto border border-darkborder bg-darkcard rounded-xl p-8 flex items-center justify-center min-w-[800px]">
+            <!-- Visual Tree Map -->
+            <div class="flex flex-col items-center gap-10">
+                <!-- Root -->
+                <div class="bg-primary text-white px-6 py-3 rounded-lg shadow-lg font-bold z-10 relative text-center min-w-[200px] cursor-pointer hover:scale-105 transition-transform" onclick="alert('Coverage: Comprehensive Health Plan covers hospitalization and related expenses.')">
+                    Coverage Base
+                </div>
+                
+                <div class="flex gap-16 relative">
+                    <!-- Lines connecting Root to branches -->
+                    <svg class="absolute top-[0px] left-0 w-full h-10 -z-0" preserveAspectRatio="none" style="transform: translateY(-40px);">
+                        <path d="M 50%,0 L 15%,40" stroke="#3b9df8" stroke-width="2" fill="none" opacity="0.5"/>
+                        <path d="M 50%,0 L 50%,40" stroke="#3b9df8" stroke-width="2" fill="none" opacity="0.5"/>
+                        <path d="M 50%,0 L 85%,40" stroke="#3b9df8" stroke-width="2" fill="none" opacity="0.5"/>
+                    </svg>
+
+                    <!-- Branch 1: Inpatient -->
+                    <div class="bg-darksec border border-green-500/50 px-4 py-2 rounded-lg text-center cursor-pointer hover:border-green-500 transition-colors z-10" onclick="alert('Inpatient Care: Covered up to $500,000 per year.\n\n✅ Currently applies to your claim (#CLM-9021)')">
+                        <p class="font-bold text-sm text-white">Inpatient Care</p>
+                        <p class="text-[10px] text-green-400 mt-1">Applies to Claim</p>
+                    </div>
+
+                    <!-- Branch 2: Outpatient -->
+                    <div class="bg-darksec border border-darkborder px-4 py-2 rounded-lg text-center cursor-pointer hover:border-primary transition-colors z-10" onclick="alert('Outpatient Care: Covered up to $10,000 per year.\n\n⚪ Not applicable to current claim.')">
+                        <p class="font-bold text-sm text-gray-300">Outpatient</p>
+                    </div>
+
+                    <!-- Branch 3: Exclusions -->
+                    <div class="bg-darksec border border-red-500/50 px-4 py-2 rounded-lg text-center cursor-pointer hover:border-red-500 transition-colors z-10" onclick="alert('Exclusions: Pre-existing conditions have a 1-year waiting period.\n\n❌ Does not apply.')">
+                        <p class="font-bold text-sm text-gray-300">Exclusions</p>
+                        <p class="text-[10px] text-red-400 mt-1">Waiting Period</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div> <!-- End Main App Wrapper -->
+
+    <!-- Scripts -->
+    <script src="script.js?v=23"></script>
+</body>
+</html>

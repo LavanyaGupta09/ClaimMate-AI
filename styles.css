@@ -1,0 +1,220 @@
+/* ═══════════════════════════════════════════════════════════════
+   ClaimMate AI SaaS — Enhanced Dashboard Styles
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-card: #1a1a24;
+  --bg-card-hover: #222230;
+  --border-color: #2a2a35;
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  --accent-blue: #3b9df8;
+  --accent-cyan: #4fd1ff;
+  --glow: rgba(59, 157, 248, 0.15);
+  --glow-strong: rgba(59, 157, 248, 0.3);
+}
+
+/* ─── Base ─── */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-blue);
+}
+
+/* ─── Layout & Views ─── */
+.view-section {
+  display: none;
+  animation: fadeIn 0.4s ease-out;
+}
+.view-section.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* ─── Cards & Buttons ─── */
+.dashboard-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.dashboard-card:hover {
+  border-color: var(--glow-strong);
+  box-shadow: 0 4px 20px var(--glow);
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2rem 0.5rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.action-btn:hover {
+  background-color: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: var(--accent-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--glow);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+  color: white;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+.btn-primary:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(59, 157, 248, 0.4);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+/* ─── Navigation ─── */
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+}
+.nav-link.active {
+  background-color: var(--glow);
+  color: var(--accent-blue);
+  border-right: 3px solid var(--accent-blue);
+  border-radius: 0.5rem 0 0 0.5rem;
+}
+
+/* ─── Animations & Effects ─── */
+.text-gradient {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  50% { transform: translateY(100%); }
+  100% { transform: translateY(-100%); }
+}
+.animate-scan {
+  animation: scan 2s linear infinite;
+}
+
+.trust-badge:hover {
+  background: rgba(34, 197, 94, 0.1);
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+/* ─── Rejection Translator specific ─── */
+.jargon-highlight {
+  background-color: rgba(239, 68, 68, 0.15); /* Red tint */
+  border-bottom: 2px dashed #ef4444;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+.jargon-highlight:hover, .jargon-highlight.active {
+  background-color: rgba(239, 68, 68, 0.3);
+}
+
+/* ─── Scanner Checklist ─── */
+.scan-check-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transform: translateX(-10px);
+  animation: slideInRight 0.3s forwards;
+}
+@keyframes slideInRight {
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ─── Smart Nudges Notification ─── */
+.nudge-item {
+  padding: 1rem;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.nudge-item:hover {
+  background-color: var(--bg-card-hover);
+}
+.nudge-item.unread {
+  border-left: 2px solid var(--accent-blue);
+  background: linear-gradient(90deg, rgba(59,157,248,0.1) 0%, transparent 100%);
+}
+
+/* ─── Chat Suggestion Chips ─── */
+.chip {
+  padding: 0.5rem 1rem;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.chip:hover {
+  background-color: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: var(--accent-blue);
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
