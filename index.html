@@ -149,6 +149,9 @@
                 <a href="#translator" class="nav-link group" data-view="translator">
                     <i data-lucide="book-open" class="w-5 h-5 group-hover:text-primary transition-colors"></i><span>Rejection Decoder</span>
                 </a>
+                <a href="#providers" class="nav-link group" data-view="providers">
+                    <i data-lucide="users" class="w-5 h-5 group-hover:text-primary transition-colors"></i><span data-i18n="nav_providers">Find a Provider</span>
+                </a>
             </div>
 
             <!-- Loans -->
@@ -748,6 +751,25 @@
                 </div>
             </div>
         </section>
+
+        <!-- ==================== PROVIDERS DIRECTORY ==================== -->
+        <section id="view-providers" class="view-section p-6 max-w-6xl mx-auto hidden">
+            <header class="mb-8">
+                <h1 class="text-3xl font-heading font-bold mb-2">Providers Directory</h1>
+                <p class="text-gray-400">Find and review in-network doctors and specialists.</p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="providers-grid">
+                <!-- Populated via JS -->
+            </div>
+        </section>
+
+        <!-- Provider Profile Modal -->
+        <div id="provider-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+            <div class="bg-darkcard border border-darkborder rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl transform scale-95 transition-transform" id="provider-modal-content">
+                <!-- Populated via JS -->
+            </div>
+        </div>
 
         <!-- ==================== LOANS: READINESS CHECK ==================== -->
         <section id="view-loan-readiness" class="view-section p-6 max-w-4xl mx-auto">

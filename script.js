@@ -1353,5 +1353,124 @@ Keep your answers concise, empathetic, and professional.`
             
         }, 2000);
     }
-});
 
+    // ═══════════════════════════════════════════════════════════════
+    // PROVIDERS DIRECTORY
+    // ═══════════════════════════════════════════════════════════════
+    const mockProviders = [
+        {
+            id: 'dr-john-doe',
+            name: 'Dr. John Doe',
+            photo: 'https://ui-avatars.com/api/?name=John+Doe&background=3b9df8&color=fff&size=128',
+            role: 'Cardiologist',
+            experience: '15 Years',
+            availability: 'Mon, Wed, Fri (9 AM - 2 PM)',
+            location: 'Apollo City Center, New York',
+            rating: '4.8/5.0',
+            about: 'Dr. John Doe is a highly experienced Cardiologist specializing in interventional cardiology and preventive care.'
+        },
+        {
+            id: 'dr-sarah-smith',
+            name: 'Dr. Sarah Smith',
+            photo: 'https://ui-avatars.com/api/?name=Sarah+Smith&background=4fd1ff&color=fff&size=128',
+            role: 'Dermatologist',
+            experience: '10 Years',
+            availability: 'Tue, Thu, Sat (10 AM - 4 PM)',
+            location: 'Skin Care Clinic, New Jersey',
+            rating: '4.9/5.0',
+            about: 'Dr. Sarah Smith focuses on medical and cosmetic dermatology with a patient-first approach.'
+        }
+    ];
+
+    function renderProviders() {
+        const grid = document.getElementById('providers-grid');
+        if (!grid) return;
+        
+        let html = '';
+        mockProviders.forEach(p => {
+            html += `
+            <div class="dashboard-card group cursor-pointer hover:border-primary transition-all flex flex-col items-center text-center" onclick="openProviderProfile('${p.id}')">
+                <img src="${p.photo}" alt="${p.name}" class="w-20 h-20 rounded-full mb-4 border-2 border-darkborder group-hover:border-primary transition-colors">
+                <h3 class="text-xl font-bold mb-1">${p.name}</h3>
+                <p class="text-sm text-primary mb-3">${p.role}</p>
+                <div class="flex items-center gap-1 text-yellow-400 text-xs mb-4">
+                    <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                    <span>${p.rating}</span>
+                </div>
+                <button class="w-full bg-darksec border border-darkborder py-2 rounded-lg text-sm group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all">View Profile</button>
+            </div>
+            `;
+        });
+        grid.innerHTML = html;
+        lucide.createIcons({ root: grid });
+    }
+
+    const providerModal = document.getElementById('provider-modal');
+    const providerModalContent = document.getElementById('provider-modal-content');
+
+    window.openProviderProfile = function(id) {
+        const provider = mockProviders.find(p => p.id === id);
+        if (!provider || !providerModal) return;
+
+        providerModalContent.innerHTML = `
+            <div class="p-6 md:p-8 relative">
+                <button class="absolute top-4 right-4 text-gray-400 hover:text-white bg-darksec p-2 rounded-full transition-colors" onclick="closeProviderProfile()">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+                
+                <div class="flex flex-col md:flex-row gap-6 items-center md:items-start mb-6">
+                    <img src="${provider.photo}" alt="${provider.name}" class="w-24 h-24 rounded-full border-4 border-darksec shadow-lg shrink-0">
+                    <div class="text-center md:text-left">
+                        <h2 class="text-2xl font-bold font-heading mb-1">${provider.name}</h2>
+                        <p class="text-primary font-medium mb-3">${provider.role}</p>
+                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm">
+                            <span class="flex items-center gap-1 bg-darksec px-3 py-1.5 rounded-lg border border-darkborder text-yellow-400"><i data-lucide="star" class="w-4 h-4 fill-current"></i> ${provider.rating}</span>
+                            <span class="flex items-center gap-1 bg-darksec px-3 py-1.5 rounded-lg border border-darkborder text-gray-300"><i data-lucide="briefcase" class="w-4 h-4"></i> ${provider.experience}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-darksec p-4 rounded-xl border border-darkborder">
+                        <h4 class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2 flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-accent"></i> Location</h4>
+                        <p class="text-gray-300 text-sm">${provider.location}</p>
+                    </div>
+                    <div class="bg-darksec p-4 rounded-xl border border-darkborder">
+                        <h4 class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-accent"></i> Availability</h4>
+                        <p class="text-gray-300 text-sm">${provider.availability}</p>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-sm font-semibold mb-2">About ${provider.name}</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed">${provider.about}</p>
+                </div>
+
+                <button class="w-full btn-primary py-3 rounded-xl flex items-center justify-center gap-2" onclick="closeProviderProfile()">
+                    <i data-lucide="calendar-check" class="w-4 h-4"></i> Book Appointment
+                </button>
+            </div>
+        `;
+        
+        lucide.createIcons({ root: providerModalContent });
+        
+        providerModal.classList.remove('hidden');
+        providerModal.classList.add('flex');
+        setTimeout(() => {
+            providerModalContent.classList.remove('scale-95');
+            providerModalContent.classList.add('scale-100');
+        }, 10);
+    };
+
+    window.closeProviderProfile = function() {
+        if (!providerModal) return;
+        providerModalContent.classList.remove('scale-100');
+        providerModalContent.classList.add('scale-95');
+        setTimeout(() => {
+            providerModal.classList.add('hidden');
+            providerModal.classList.remove('flex');
+        }, 200);
+    };
+
+    renderProviders();
+});
