@@ -1473,4 +1473,89 @@ Keep your answers concise, empathetic, and professional.`
     };
 
     renderProviders();
+
+    // ═══════════════════════════════════════════════════════════════
+    // USER PROFILE MODAL (SIDEBAR)
+    // ═══════════════════════════════════════════════════════════════
+    const mockUsers = [
+        {
+            id: 'jane-doe',
+            name: 'Jane Doe',
+            photo: 'https://ui-avatars.com/api/?name=Jane+Doe&background=3b9df8&color=fff&size=128',
+            role: 'Premium Member',
+            experience: 'Joined 2023',
+            availability: 'Online',
+            location: 'New York, USA',
+            rating: '5.0/5.0 (Trust Score)',
+            about: 'Jane is a premium customer with ClaimMate AI, utilizing the platform for seamless insurance tracking and financial insights.'
+        }
+    ];
+
+    const userProfileModal = document.getElementById('user-profile-modal');
+    const userProfileModalContent = document.getElementById('user-profile-modal-content');
+
+    window.openUserProfile = function(id) {
+        const user = mockUsers.find(u => u.id === id);
+        if (!user || !userProfileModal) return;
+
+        userProfileModalContent.innerHTML = `
+            <div class="p-6 md:p-8 relative">
+                <button class="absolute top-4 right-4 text-gray-400 hover:text-white bg-darksec p-2 rounded-full transition-colors" onclick="closeUserProfile()">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+                
+                <div class="flex flex-col md:flex-row gap-6 items-center md:items-start mb-6">
+                    <img src="${user.photo}" alt="${user.name}" class="w-24 h-24 rounded-full border-4 border-darksec shadow-lg shrink-0">
+                    <div class="text-center md:text-left">
+                        <h2 class="text-2xl font-bold font-heading mb-1">${user.name}</h2>
+                        <p class="text-primary font-medium mb-3">${user.role}</p>
+                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm">
+                            <span class="flex items-center gap-1 bg-darksec px-3 py-1.5 rounded-lg border border-darkborder text-yellow-400"><i data-lucide="star" class="w-4 h-4 fill-current"></i> ${user.rating}</span>
+                            <span class="flex items-center gap-1 bg-darksec px-3 py-1.5 rounded-lg border border-darkborder text-gray-300"><i data-lucide="calendar" class="w-4 h-4"></i> ${user.experience}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-darksec p-4 rounded-xl border border-darkborder">
+                        <h4 class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2 flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-accent"></i> Location</h4>
+                        <p class="text-gray-300 text-sm">${user.location}</p>
+                    </div>
+                    <div class="bg-darksec p-4 rounded-xl border border-darkborder">
+                        <h4 class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2 flex items-center gap-2"><i data-lucide="activity" class="w-4 h-4 text-accent"></i> Status</h4>
+                        <p class="text-gray-300 text-sm">${user.availability}</p>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-sm font-semibold mb-2">About ${user.name}</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed">${user.about}</p>
+                </div>
+
+                <button class="w-full btn-primary py-3 rounded-xl flex items-center justify-center gap-2" onclick="closeUserProfile()">
+                    <i data-lucide="edit" class="w-4 h-4"></i> Edit Profile Settings
+                </button>
+            </div>
+        `;
+        
+        lucide.createIcons({ root: userProfileModalContent });
+        
+        userProfileModal.classList.remove('hidden');
+        userProfileModal.classList.add('flex');
+        setTimeout(() => {
+            userProfileModalContent.classList.remove('scale-95');
+            userProfileModalContent.classList.add('scale-100');
+        }, 10);
+    };
+
+    window.closeUserProfile = function() {
+        if (!userProfileModal) return;
+        userProfileModalContent.classList.remove('scale-100');
+        userProfileModalContent.classList.add('scale-95');
+        setTimeout(() => {
+            userProfileModal.classList.add('hidden');
+            userProfileModal.classList.remove('flex');
+        }, 200);
+    };
+
 });
